@@ -1,38 +1,36 @@
-module ZeroOne where
+module ZeroOne where 
 
-import Data.Char (digitToInt)
+-- Sum an integer from 0 to n 
+sumtorial :: Integer -> Integer 
+sumtorial 0 = 0 
+sumtorial n = n + sumtorial (n-1) 
 
--- Sum an integer from 0 to n
-sumtorial :: Integer -> Integer
-sumtorial 0 = 0
-sumtorial n = n + sumtorial (n-1)
+hailstone :: Integer -> Integer 
+hailstone n 
+  | n `mod` 2 == 0 = n `div` 2 
+  | otherwise = 3*n + 1 
 
-hailstone :: Integer -> Integer
-hailstone n
-   | n `mod` 2 == 0 = n `div` 2
-   | otherwise      = 3*n + 1
-
-foo :: Integer -> Integer
-foo 0 = 16
-foo 1
-   | "Haskell" > "C++" = 3
-   | otherwise         = 4
+foo :: Integer -> Integer 
+foo 0 = 16 
+foo 1 
+  | "Haskell" > "C++" = 3 
+  | otherwise         = 4 
 foo n 
-   | n < 0             = 0
-   | n `mod` 17 == 2   = -43
-   | otherwise         = n + 3
+  | n < 0             = 0 
+  | n `mod` 17 == 2   = -43 
+  | otherwise         = n + 3 
 
-isEven  :: Integer -> Bool
-isEven n
-   | n `mod` 2 == 0 = True
-   | otherwise      = False
+isEven  :: Integer -> Bool 
+isEven n 
+  | n `mod` 2 == 0 = True 
+  | otherwise      = False 
 
-hailstoneSeq :: Integer -> [Integer]
-hailstoneSeq 1 = [1]
-hailstoneSeq n = n : hailstoneSeq (hailstone n)
+hailstoneSeq :: Integer -> [Integer] 
+hailstoneSeq 1 = [1] 
+hailstoneSeq n = n : hailstoneSeq (hailstone n) 
 
-intListLength :: [Integer] -> Integer
-intListLength [] = 0
+intListLength :: [Integer] -> Integer 
+intListLength [] = 0 
 intListLength (_:xs) = 1 + intListLength xs
 
 sumEveryTwo :: [Integer] -> [Integer]
@@ -43,17 +41,32 @@ sumEveryTwo (x:(y:zs)) = (x + y) : sumEveryTwo zs
 hailstoneLen :: Integer -> Integer
 hailstoneLen n = intListLength (hailstoneSeq n) - 1
 
--- Converts an integer to a list of its digits
 toDigits :: Integer -> [Integer]
-toDigits n = map (toInteger . digitToInt) (show n)
+toDigits x
+  | x < 0 = []
+  | x < 10 = [x]
+  | otherwise = toDigits (x `div` 10) ++ [x `mod` 10]
+
+toDigitsRev :: Integer -> [Integer]
+toDigitsRev x = reverse $ toDigits x
+
+myDoubleEveryOther :: [Integer] -> [Integer]
+myDoubleEveryOther x = map (\(a,b) -> a*b) $ zip x $ cycle [2,1]
 
 -- Doubles every other number from the right
 doubleEveryOther :: [Integer] -> [Integer]
 doubleEveryOther = reverse . zipWith (*) (cycle [1,2]) . reverse
 
+--We can also define this as concat . map, but this works for any foldable t instead of [a].
+myConcatMap :: Foldable t => (a -> [b]) -> t a -> [b]
+myConcatMap f = foldr (\a bs -> f a ++ bs) [] 
+
 -- Sums all digits of a number, treating numbers >9 as separate digits
 sumDigits :: [Integer] -> Integer
-sumDigits = sum . concatMap toDigits
+sumDigits = sum . myConcatMap toDigits
+
+myValidate :: Integer -> Bool
+myValidate x = mod (sumDigits . myDoubleEveryOther $ toDigits x) 10 == 0
 
 -- Validates the number using the Luhn algorithm
 validate :: Integer -> Bool
