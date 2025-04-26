@@ -60,10 +60,10 @@ doubleEveryOther = reverse . zipWith (*) (cycle [1,2]) . reverse
 --We can also define this as concat . map, but this works for any foldable t instead of [a].
 myConcatMap :: Foldable t => (a -> [b]) -> t a -> [b]
 myConcatMap f = foldr (\a bs -> f a ++ bs) [] 
+-- Sums all digits of a number, treating numbers >9 as separate digits 
 
--- Sums all digits of a number, treating numbers >9 as separate digits
-sumDigits :: [Integer] -> Integer
-sumDigits = sum . myConcatMap toDigits
+sumDigits :: [Integer] -> Integer 
+sumDigits = sum . myConcatMap toDigits 
 
 myValidate :: Integer -> Bool
 myValidate x = mod (sumDigits . myDoubleEveryOther $ toDigits x) 10 == 0
@@ -74,6 +74,13 @@ validate n = sumDigits (doubleEveryOther (toDigits n)) `mod` 10 == 0
 
 type Peg = String
 type Move = (Peg, Peg)
+
+myHanoi :: Integer -> Peg -> Peg -> Peg -> [Move]
+myHanoi 0 _ _ _ = [] -- Base case: No Discs to move.
+myHanoi n source auxiliary target = 
+   myHanoi (n - 1) source target auxiliary ++ -- Move n-1 disks from source to auxiliary
+   [(source, target)] ++                      -- Move the nth disk from source to target
+   myHanoi (n - 1) auxiliary source target    -- Move the n-1 disks from auxiliary to target
 
 hanoi :: Int -> Peg -> Peg -> Peg -> [Move]
 hanoi 0 _ _ _ = []  -- Base case: no disks to move
